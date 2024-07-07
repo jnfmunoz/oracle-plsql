@@ -67,7 +67,7 @@ VARIABLE b_run_empleado NUMBER;
        
  END;
  
- -- SELECT * FROM proy_movilizacion;
+-- SELECT * FROM proy_movilizacion;
  
 -- CASO 02
 VARIABLE b_run_empleado NUMBER;
@@ -143,3 +143,67 @@ BEGIN
 END;
 
 -- SELECT * FROM usuario_clave;
+
+-- CASO 03
+VARIABLE b_anno_proceso NUMBER;
+VARIABLE b_porc_rebaja NUMBER;
+VARIABLE b_nro_patente VARCHAR2(6);
+
+DECLARE
+    v_total_veces_arrendado NUMBER :=0;
+    
+BEGIN
+    :b_anno_proceso := 2023;
+    :b_porc_rebaja := 22.5;
+    :b_nro_patente := 'AHEW11'; -- AHEW11, ASEZ11, BC1002, BT1002, VR1003
+        
+    SELECT COUNT(nro_patente) 
+    INTO v_total_veces_arrendado
+    FROM arriendo_camion
+    WHERE nro_patente LIKE :b_nro_patente
+        AND TO_CHAR(fecha_ini_arriendo, 'YYYY') = :b_anno_proceso
+    ORDER BY fecha_ini_arriendo ASC;
+    
+    DECLARE
+        v_valor_arriendo_dia NUMBER := 0;
+        v_valor_garantia_dia NUMBER := 0;
+    BEGIN
+        SELECT valor_arriendo_dia, valor_garantia_dia 
+        INTO v_valor_arriendo_dia, v_valor_garantia_dia
+        FROM camion
+        WHERE nro_patente = :b_nro_patente;
+        
+        INSERT INTO hist_arriendo_anual_camion
+        VALUES (:b_anno_proceso, :b_nro_patente, v_valor_arriendo_dia, v_valor_garantia_dia, v_total_veces_arrendado);
+        
+        DBMS_OUTPUT.PUT_LINE('----------------------------------------------------');
+        DBMS_OUTPUT.PUT_LINE('INSERTANDO DATOS EN TABLA HIST_ARRIENDO_ANUAL_CAMION');
+        DBMS_OUTPUT.PUT_LINE('ANNO_PROCESO: ' || :b_anno_proceso);
+        DBMS_OUTPUT.PUT_LINE('NRO_PATENTE: ' || :b_nro_patente);
+        DBMS_OUTPUT.PUT_LINE('VALOR_ARRIENDO_DIA: ' || v_valor_arriendo_dia);
+        DBMS_OUTPUT.PUT_LINE('VALOR_GARANTIA_DIA: ' || v_valor_garantia_dia);
+        DBMS_OUTPUT.PUT_LINE('TOTAL_VECES_ARRENDADO: ' || v_total_veces_arrendado);
+                
+        IF v_total_veces_arrendado < 5 THEN
+            v_valor_arriendo_dia := v_valor_arriendo_dia - (v_valor_arriendo_dia * (:b_porc_rebaja / 100));
+            v_valor_garantia_dia := v_valor_arriendo_dia - (v_valor_arriendo_dia * (:b_porc_rebaja / 100));
+            
+            UPDATE camion
+            SET valor_arriendo_dia = v_valor_arriendo_dia,
+                valor_garantia_dia = v_valor_garantia_dia
+            WHERE nro_patente = :b_nro_patente;
+            
+            DBMS_OUTPUT.PUT_LINE('----------------------------------------------------');
+            DBMS_OUTPUT.PUT_LINE('ACTUALIZANDO DATOS EN TABLA CAMION');
+            DBMS_OUTPUT.PUT_LINE('ANNO_PROCESO: ' || :b_anno_proceso);
+            DBMS_OUTPUT.PUT_LINE('NRO_PATENTE: ' || :b_nro_patente);
+            DBMS_OUTPUT.PUT_LINE('VALOR_ARRIENDO_DIA: ' || v_valor_arriendo_dia);
+            DBMS_OUTPUT.PUT_LINE('VALOR_GARANTIA_DIA: ' || v_valor_garantia_dia);
+            DBMS_OUTPUT.PUT_LINE('TOTAL_VECES_ARRENDADO: ' || v_total_veces_arrendado);            
+        
+		END IF;                
+    END;
+END;
+
+-- SELECT * FROM hist_arriendo_anual_camion;
+-- SELECT * FROM camion WHERE nro_patente LIKE 'AHEW11'; -- AHEW11, ASEZ11, BC1002, BT1002, VR1003
