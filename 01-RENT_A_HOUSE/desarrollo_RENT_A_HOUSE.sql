@@ -1,6 +1,7 @@
---CASO 01
+-- CASO 01
 VARIABLE b_porcentaje NUMBER;
 VARIABLE b_rut NUMBER;
+
 DECLARE
     v_nombre_empleado VARCHAR2(200);
     v_run_dv VARCHAR2(10);
@@ -24,16 +25,19 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('RUN: ' || v_run_dv);
     DBMS_OUTPUT.PUT_LINE('Sueldo: ' || v_sueldo);
     DBMS_OUTPUT.PUT_LINE('Bonificacion extra: ' || v_bonificacion);
-END;
 
---CASO 02
+END;
+/
+-- CASO 02
 VARIABLE b_rut_cliente NUMBER;
 VARIABLE b_monto_renta NUMBER;
+
 DECLARE
     v_nombre_cliente VARCHAR2(200);
     v_rut_cliente VARCHAR2(10);
     v_estado_civil VARCHAR2(200);
     v_renta VARCHAR2(200);
+	
 BEGIN 
     :b_rut_cliente := 12487147; --12861354, 13050258 
     :b_monto_renta := 800000;
@@ -55,12 +59,14 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('RUN: ' || v_rut_cliente);
     DBMS_OUTPUT.PUT_LINE('Estado Civil: ' || v_estado_civil);
     DBMS_OUTPUT.PUT_LINE('Renta: ' || v_renta);
+	
 END;
-
---CASO 03
+/
+-- CASO 03
 VARIABLE b_porcentaje_aumento_1 NUMBER; 
 VARIABLE b_porcentaje_aumento_2 NUMBER; 
 VARIABLE b_run NUMBER;
+
 DECLARE
     v_nombre_empleado VARCHAR2(200);
     v_run VARCHAR(10);
@@ -69,6 +75,7 @@ DECLARE
     v_reajuste_2 NUMBER;
     v_sueldo_reajustado_1 NUMBER;
     v_sueldo_reajustado_2 NUMBER;
+	
 BEGIN
     :b_porcentaje_aumento_1 := 8.5;
     :b_porcentaje_aumento_2 := 20;
@@ -104,8 +111,8 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('Reajuste: ' || v_reajuste_2);
     
 END;
-
---CASO 04
+/
+-- CASO 04
 VARIABLE b_tipo_propiedad VARCHAR2(1); 
 DECLARE 
     v_desc_tipo_propiedad VARCHAR2(200);

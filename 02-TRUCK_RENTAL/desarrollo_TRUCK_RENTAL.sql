@@ -11,8 +11,8 @@ VARIABLE b_movilizacion_3 NUMBER;
 VARIABLE b_movilizacion_4 NUMBER;
 VARIABLE b_movilizacion_5 NUMBER;
 VARIABLE b_run_empleado NUMBER;
- 
- DECLARE    
+
+DECLARE    
     v_dvrun_emp NUMBER; 
     v_nombre_empleado VARCHAR(200);
     v_sueldo_base NUMBER;
@@ -22,7 +22,7 @@ VARIABLE b_run_empleado NUMBER;
     v_total_movil NUMBER;
     v_id_comuna NUMBER;
     
- BEGIN
+BEGIN
     :b_comuna_1 := 117;
     :b_comuna_2 := 118;
     :b_comuna_3 := 119;
@@ -61,14 +61,14 @@ VARIABLE b_run_empleado NUMBER;
     
     v_total_movil := ROUND(v_valor_movil_normal + v_valor_movil_extra);
     
-    INSERT INTO proy_movilizacion
+	INSERT INTO proy_movilizacion
     VALUES(:b_anio_proceso, :b_run_empleado, v_dvrun_emp, v_nombre_empleado, v_sueldo_base, v_porc_movil, 
             v_valor_movil_normal, v_valor_movil_extra, v_total_movil);
        
- END;
- 
+END;
+
 -- SELECT * FROM proy_movilizacion;
- 
+/
 -- CASO 02
 VARIABLE b_run_empleado NUMBER;
 VARIABLE b_mes_anno NUMBER;
@@ -143,7 +143,7 @@ BEGIN
 END;
 
 -- SELECT * FROM usuario_clave;
-
+/
 -- CASO 03
 VARIABLE b_anno_proceso NUMBER;
 VARIABLE b_porc_rebaja NUMBER;
@@ -207,3 +207,53 @@ END;
 
 -- SELECT * FROM hist_arriendo_anual_camion;
 -- SELECT * FROM camion WHERE nro_patente LIKE 'AHEW11'; -- AHEW11, ASEZ11, BC1002, BT1002, VR1003
+/
+-- CASO 04
+VARIABLE b_anno_mes_proceso NUMBER;
+VARIABLE b_nro_patente VARCHAR2(6);
+VARIABLE b_monto_multa NUMBER;
+
+DECLARE
+    v_fecha_ini_arriendo arriendo_camion.fecha_ini_arriendo%TYPE;
+    v_dias_solicitados NUMBER;
+    v_fecha_devolucion arriendo_camion.fecha_devolucion%TYPE;
+    v_cant_dias_arriendo NUMBER := 0;
+    v_cantidad_dias_atraso NUMBER := 0;
+    v_valor_multa NUMBER := 0;
+    
+BEGIN
+    :b_anno_mes_proceso := 022024;
+    :b_nro_patente := 'AA1001';-- AA1001, AHEW11, ASEZ11, BT1002, VR1003
+    :b_monto_multa := 25500;
+    
+    SELECT TO_CHAR(fecha_ini_arriendo, 'DD/MM/YYYY') AS fecha_ini_arriendo, 
+           dias_solicitados, 
+           TO_CHAR(fecha_devolucion, 'DD/MM/YYYY') AS fecha_devolucion,
+           fecha_devolucion - fecha_ini_arriendo AS cant_dias_arriendo
+    INTO v_fecha_ini_arriendo, v_dias_solicitados, v_fecha_devolucion, v_cant_dias_arriendo
+    FROM arriendo_camion
+    WHERE nro_patente LIKE :b_nro_patente
+    AND TO_CHAR(fecha_ini_arriendo, 'MMYYYY') = :b_anno_mes_proceso
+        AND fecha_ini_arriendo + dias_solicitados < fecha_devolucion; 
+    
+    v_cantidad_dias_atraso := v_cant_dias_arriendo - v_dias_solicitados;
+    v_valor_multa := v_cantidad_dias_atraso * :b_monto_multa;
+    
+    INSERT INTO multa_arriendo
+    VALUES(:b_anno_mes_proceso, :b_nro_patente, v_fecha_ini_arriendo,
+            v_dias_solicitados, v_fecha_devolucion, v_cantidad_dias_atraso, 
+            v_valor_multa);
+
+    DBMS_OUTPUT.PUT_LINE('TABLA MULTA_ARRIENDO');
+    DBMS_OUTPUT.PUT_LINE('anno_mes_proceso: ' || :b_anno_mes_proceso);
+    DBMS_OUTPUT.PUT_LINE('nro_patente: ' || :b_nro_patente);
+    DBMS_OUTPUT.PUT_LINE('fecha_ini_arriendo: ' || v_fecha_ini_arriendo);
+    DBMS_OUTPUT.PUT_LINE('dias_solicitados: ' || v_dias_solicitados);
+    DBMS_OUTPUT.PUT_LINE('fecha_devolucion: ' || v_fecha_devolucion);
+    DBMS_OUTPUT.PUT_LINE('dias_atraso: ' || v_cantidad_dias_atraso);
+    DBMS_OUTPUT.PUT_LINE('valor multa: ' || v_valor_multa);
+    
+END;
+
+-- SELECT * FROM multa_arriendo;
+/
