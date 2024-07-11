@@ -171,3 +171,81 @@ END;
 /
 -- SELECT * FROM cumpleanno_cliente;
 /
+-- CASO 03
+VARIABLE b_nro_cliente NUMBER;
+VARIABLE b_nro_solic_credito NUMBER;
+VARIABLE b_cant_cuotas_postergar NUMBER;
+
+DECLARE
+    v_nro_cliente NUMBER;
+    v_cant_cred_solic NUMBER;
+    v_ultima_cuota NUMBER;
+    v_tipo_credito NUMBER;
+    v_fecha_venc_cuota cuota_credito_cliente.fecha_venc_cuota%TYPE;
+    v_valor_cuota NUMBER;
+    
+BEGIN
+    :b_nro_cliente := 5; --5, 67, 13, 
+    :b_nro_solic_credito := 2004; -- 2004, 3004, 2001
+    :b_cant_cuotas_postergar := 2; -- hasta 2, cant.cuotas[1,1,2]
+    
+    SELECT nro_cliente,
+        COUNT(nro_cliente) AS cant_cred_solic
+    INTO v_nro_cliente, v_cant_cred_solic
+    FROM credito_cliente
+    WHERE TO_CHAR(fecha_solic_cred,'YYYY') = TO_CHAR(SYSDATE, 'YYYY')-1
+        AND nro_cliente = :b_nro_cliente
+    GROUP BY nro_cliente;
+    
+    BEGIN 
+        SELECT MAX(nro_cuota), cred.cod_credito, MAX(cuota.fecha_venc_cuota), cuota.valor_cuota
+        INTO v_ultima_cuota, v_tipo_credito, v_fecha_venc_cuota, v_valor_cuota
+        FROM cuota_credito_cliente cuota
+        JOIN credito_cliente cred
+            ON cuota.nro_solic_credito = cred.nro_solic_credito
+        WHERE cred.nro_solic_credito = :b_nro_solic_credito 
+        GROUP BY cred.nro_solic_credito, cred.cod_credito, cuota.valor_cuota;
+    END;
+    
+    IF v_cant_cred_solic > 1 THEN
+        UPDATE cuota_credito_cliente
+        SET fecha_pago_cuota = fecha_venc_cuota,
+            monto_pagado = valor_cuota
+        WHERE nro_solic_credito = :b_nro_solic_credito
+            AND nro_cuota = v_ultima_cuota;
+    END IF;
+    
+    CASE
+        WHEN v_tipo_credito = 1 THEN 
+            IF :b_cant_cuotas_postergar = 1 THEN
+                v_ultima_cuota := v_ultima_cuota +1;
+                v_fecha_venc_cuota := ADD_MONTHS(v_fecha_venc_cuota, 1);
+                v_valor_cuota := v_valor_cuota;
+            INSERT INTO cuota_credito_cliente(nro_solic_credito, nro_cuota, fecha_venc_cuota, valor_cuota)
+            VALUES(:b_nro_solic_credito, v_ultima_cuota,v_fecha_venc_cuota, v_valor_cuota);
+            ELSIF :b_cant_cuotas_postergar = 2 THEN
+                v_valor_cuota := (v_valor_cuota*(0.5/100))+v_valor_cuota;
+                FOR x IN 1..2 LOOP
+                    v_ultima_cuota := v_ultima_cuota +1;
+                    v_fecha_venc_cuota := ADD_MONTHS(v_fecha_venc_cuota, 1);                    
+                INSERT INTO cuota_credito_cliente(nro_solic_credito, nro_cuota, fecha_venc_cuota, valor_cuota)
+                VALUES(:b_nro_solic_credito, v_ultima_cuota,v_fecha_venc_cuota, v_valor_cuota);
+                END LOOP;
+            END IF;
+        WHEN v_tipo_credito = 2 THEN 
+            v_ultima_cuota := v_ultima_cuota +1;
+            v_fecha_venc_cuota := ADD_MONTHS(v_fecha_venc_cuota, 1);
+            v_valor_cuota := (v_valor_cuota*(1/100))+v_valor_cuota;
+            INSERT INTO cuota_credito_cliente(nro_solic_credito, nro_cuota, fecha_venc_cuota, valor_cuota)
+            VALUES(:b_nro_solic_credito, v_ultima_cuota,v_fecha_venc_cuota, v_valor_cuota);
+        WHEN v_tipo_credito = 3 THEN 
+            v_ultima_cuota := v_ultima_cuota +1;
+            v_fecha_venc_cuota := ADD_MONTHS(v_fecha_venc_cuota, 1);
+            v_valor_cuota := (v_valor_cuota*(2/100))+v_valor_cuota;
+            INSERT INTO cuota_credito_cliente(nro_solic_credito, nro_cuota, fecha_venc_cuota, valor_cuota)
+            VALUES(:b_nro_solic_credito, v_ultima_cuota,v_fecha_venc_cuota, v_valor_cuota);
+    END CASE;
+
+END;
+/
+SELECT * FROM cuota_credito_cliente;
