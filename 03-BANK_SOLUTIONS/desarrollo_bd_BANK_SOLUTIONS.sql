@@ -221,8 +221,8 @@ BEGIN
                 v_ultima_cuota := v_ultima_cuota +1;
                 v_fecha_venc_cuota := ADD_MONTHS(v_fecha_venc_cuota, 1);
                 v_valor_cuota := v_valor_cuota;
-            INSERT INTO cuota_credito_cliente(nro_solic_credito, nro_cuota, fecha_venc_cuota, valor_cuota)
-            VALUES(:b_nro_solic_credito, v_ultima_cuota,v_fecha_venc_cuota, v_valor_cuota);
+				INSERT INTO cuota_credito_cliente(nro_solic_credito, nro_cuota, fecha_venc_cuota, valor_cuota)
+				VALUES(:b_nro_solic_credito, v_ultima_cuota,v_fecha_venc_cuota, v_valor_cuota);
             ELSIF :b_cant_cuotas_postergar = 2 THEN
                 v_valor_cuota := (v_valor_cuota*(0.5/100))+v_valor_cuota;
                 FOR x IN 1..2 LOOP
