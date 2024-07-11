@@ -66,7 +66,7 @@ BEGIN
             v_valor_movil_normal, v_valor_movil_extra, v_total_movil);
        
 END;
-
+/
 -- SELECT * FROM proy_movilizacion;
 /
 -- CASO 02
@@ -141,7 +141,7 @@ BEGIN
     dbms_output.put_line('CLAVE_USUARIO: ' || v_clave_usuario);    
     
 END;
-
+/
 -- SELECT * FROM usuario_clave;
 /
 -- CASO 03
@@ -204,7 +204,7 @@ BEGIN
 		END IF;                
     END;
 END;
-
+/
 -- SELECT * FROM hist_arriendo_anual_camion;
 -- SELECT * FROM camion WHERE nro_patente LIKE 'AHEW11'; -- AHEW11, ASEZ11, BC1002, BT1002, VR1003
 /
@@ -254,6 +254,6 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('valor multa: ' || v_valor_multa);
     
 END;
-
+/
 -- SELECT * FROM multa_arriendo;
 /
