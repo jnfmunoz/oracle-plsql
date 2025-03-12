@@ -248,4 +248,4 @@ BEGIN
 
 END;
 /
-SELECT * FROM cuota_credito_cliente;
+-- SELECT * FROM cuota_credito_cliente;

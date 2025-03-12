@@ -1,6 +1,7 @@
 -- CASO 01
 VARIABLE b_anio_proceso NUMBER;
-VARIABLE b_comuna_1 NUMBER; -- (117 - María Pinto), (118 - Curacaví),  (119 - Talagante),  (120 - El Monte), (121 - Buin); 
+/* (117 - María Pinto), (118 - Curacaví),  (119 - Talagante),  (120 - El Monte), (121 - Buin); */
+VARIABLE b_comuna_1 NUMBER;
 VARIABLE b_comuna_2 NUMBER;
 VARIABLE b_comuna_3 NUMBER;
 VARIABLE b_comuna_4 NUMBER;
@@ -256,4 +257,3 @@ BEGIN
 END;
 /
 -- SELECT * FROM multa_arriendo;
-/
